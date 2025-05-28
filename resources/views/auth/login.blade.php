@@ -1,8 +1,11 @@
 <x-guest-layout>
     <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+    <x-slot name="logo">
+        <div class="flex flex-col items-center">
+            <img src="{{ asset('budget.png') }}" alt="Finansų logotipas" class="w-20 h-20 rounded-full shadow-md mb-2">
+            <h1 class="text-xl font-bold text-gray-800">Asmeninių finansų sistema</h1>
+        </div>
+    </x-slot>
 
         <x-validation-errors class="mb-4" />
 
@@ -28,19 +31,19 @@
             <div class="block mt-4">
                 <label for="remember_me" class="flex items-center">
                     <x-checkbox id="remember_me" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                    <span class="ms-2 text-sm text-gray-600">{{ __('Prisiminti ?') }}</span>
                 </label>
             </div>
 
             <div class="flex items-center justify-end mt-4">
                 @if (Route::has('password.request'))
                     <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
+                        {{ __('Pamiršote slaptažodį ?') }}
                     </a>
                 @endif
 
                 <x-button class="ms-4">
-                    {{ __('Log in') }}
+                    {{ __('Prisijungti') }}
                 </x-button>
             </div>
         </form>

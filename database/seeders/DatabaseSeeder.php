@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Sukuriam testinį vartotoją tik jei dar jo nėra
+        
         User::firstOrCreate(
             ['email' => 'test@example.com'],
             [
@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Paleidžiam tipų ir kategorijų seederius
+        
         $this->call([
             TipaiSeeder::class,
             KategorijosSeeder::class,

@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('tipai', function (Blueprint $table) {
             $table->id();
-            $table->string('pavadinimas'); // Pvz.: Pajamos, Išlaidos
+            $table->string('pavadinimas');
             $table->timestamps();
         });
     }

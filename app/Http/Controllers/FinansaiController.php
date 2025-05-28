@@ -6,20 +6,29 @@ use Illuminate\Http\Request;
 use App\Models\Irasas;
 use App\Models\Tipas;
 use App\Models\Kategorija;
+use Carbon\Carbon;
 
 class FinansaiController extends Controller
 {
-    /**
-     * Rodo vartotojo įrašų sąrašą (dashboard).
-     */
-    public function index()
+
+    public function index(Request $request)
     {
         $naudotojo_id = auth()->id();
 
-        $irasai = Irasas::where('user_id', $naudotojo_id)
-            ->with(['kategorija', 'tipas'])
-            ->get();
+        $filtruotasTipas = $request->input('tipas');
+        $filtruotaKategorija = $request->input('kategorija');
 
+        $query = Irasas::where('user_id', $naudotojo_id)->with(['kategorija', 'tipas']);
+
+        if ($filtruotasTipas) {
+            $query->where('tipas_id', $filtruotasTipas);
+        }
+
+        if ($filtruotaKategorija) {
+            $query->where('kategorija_id', $filtruotaKategorija);
+        }
+
+        $irasai = $query->get();
         $kategorijos = Kategorija::all();
         $tipai = Tipas::all();
 
@@ -29,13 +38,75 @@ class FinansaiController extends Controller
 
         return view('dashboard', compact(
             'irasai', 'kategorijos', 'tipai',
-            'pajamos', 'islaidos', 'balansas'
+            'pajamos', 'islaidos', 'balansas',
+            'filtruotasTipas', 'filtruotaKategorija'
         ));
     }
 
-    /**
-     * Išsaugo naują įrašą į DB.
-     */
+
+    public function statistika()
+    {
+        $naudotojo_id = auth()->id();
+
+        
+        $dienosIslaidos = Irasas::where('user_id', $naudotojo_id)
+            ->where('tipas_id', 2)
+            ->whereDate('data', Carbon::today())
+            ->get()
+            ->groupBy(fn($item) => Carbon::parse($item->data)->format('H'))
+            ->map(fn($group) => $group->sum('suma'));
+
+        $dienosLabels = [];
+        $dienosValues = [];
+        for ($i = 0; $i < 24; $i++) {
+            $val = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $dienosLabels[] = $val . ':00';
+            $dienosValues[] = $dienosIslaidos[$val] ?? 0;
+        }
+
+        
+        $menesioIslaidos = Irasas::where('user_id', $naudotojo_id)
+            ->where('tipas_id', 2)
+            ->whereMonth('data', Carbon::now()->month)
+            ->get()
+            ->groupBy(fn($item) => Carbon::parse($item->data)->format('d'))
+            ->map(fn($group) => $group->sum('suma'));
+
+        $menesioLabels = [];
+        $menesioValues = [];
+        $daysInMonth = Carbon::now()->daysInMonth;
+        for ($i = 1; $i <= $daysInMonth; $i++) {
+            $diena = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $menesioLabels[] = $diena;
+            $menesioValues[] = $menesioIslaidos[$diena] ?? 0;
+        }
+
+        
+        $metuIslaidos = Irasas::where('user_id', $naudotojo_id)
+            ->where('tipas_id', 2)
+            ->whereYear('data', Carbon::now()->year)
+            ->get()
+            ->groupBy(fn($item) => Carbon::parse($item->data)->format('m'))
+            ->map(fn($group) => $group->sum('suma'));
+
+        $metuLabels = [
+            'Sausis', 'Vasaris', 'Kovas', 'Balandis', 'Gegužė', 'Birželis',
+            'Liepa', 'Rugpjūtis', 'Rugsėjis', 'Spalis', 'Lapkritis', 'Gruodis'
+        ];
+        $metuValues = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $key = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $metuValues[] = $metuIslaidos[$key] ?? 0;
+        }
+
+        return view('statistika', compact(
+            'dienosLabels', 'dienosValues',
+            'menesioLabels', 'menesioValues',
+            'metuLabels', 'metuValues'
+        ));
+    }
+
+
     public function store(Request $request)
     {
         $request->validate([
@@ -58,9 +129,7 @@ class FinansaiController extends Controller
         return redirect()->route('dashboard')->with('success', '✅ Įrašas pridėtas sėkmingai!');
     }
 
-    /**
-     * Rodo redagavimo formą.
-     */
+
     public function edit($id)
     {
         $irasas = Irasas::where('user_id', auth()->id())->findOrFail($id);
@@ -70,9 +139,7 @@ class FinansaiController extends Controller
         return view('edit', compact('irasas', 'kategorijos', 'tipai'));
     }
 
-    /**
-     * Atnaujina redaguotą įrašą.
-     */
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -96,9 +163,7 @@ class FinansaiController extends Controller
         return redirect()->route('dashboard')->with('success', '✏️ Įrašas atnaujintas sėkmingai!');
     }
 
-    /**
-     * Ištrina įrašą iš DB.
-     */
+
     public function destroy($id)
     {
         $irasas = Irasas::where('user_id', auth()->id())->findOrFail($id);

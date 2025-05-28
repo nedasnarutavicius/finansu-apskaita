@@ -1,7 +1,10 @@
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">
-            <x-authentication-card-logo />
+        <div class="flex flex-col items-center">
+            <img src="{{ asset('budget.png') }}" alt="Finansų logotipas" class="w-20 h-20 rounded-full shadow-md mb-2">
+            <h1 class="text-xl font-bold text-gray-800">Asmeninių finansų sistema</h1>
+        </div>
         </x-slot>
 
         <x-validation-errors class="mb-4" />
