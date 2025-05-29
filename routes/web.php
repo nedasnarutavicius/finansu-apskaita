@@ -29,4 +29,6 @@ Route::middleware([
     Route::put('/irasai/{id}', [FinansaiController::class, 'update'])->name('irasai.update');
 
     Route::get('/statistika', [FinansaiController::class, 'statistika'])->name('statistika');
+
+    Route::get('/eksportuoti-pdf', [FinansaiController::class, 'eksportuotiPDF'])->name('eksportuoti.pdf');
 });

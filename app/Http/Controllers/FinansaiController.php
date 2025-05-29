@@ -7,10 +7,11 @@ use App\Models\Irasas;
 use App\Models\Tipas;
 use App\Models\Kategorija;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class FinansaiController extends Controller
 {
-
+    
     public function index(Request $request)
     {
         $naudotojo_id = auth()->id();
@@ -51,9 +52,9 @@ class FinansaiController extends Controller
         
         $dienosIslaidos = Irasas::where('user_id', $naudotojo_id)
             ->where('tipas_id', 2)
-            ->whereDate('data', Carbon::today())
+            ->whereDate('created_at', Carbon::today())
             ->get()
-            ->groupBy(fn($item) => Carbon::parse($item->data)->format('H'))
+            ->groupBy(fn($item) => Carbon::parse($item->created_at)->format('H'))
             ->map(fn($group) => $group->sum('suma'));
 
         $dienosLabels = [];
@@ -106,6 +107,16 @@ class FinansaiController extends Controller
         ));
     }
 
+    public function eksportuotiPDF()
+    {
+        $naudotojo_id = auth()->id();
+
+        $irasai = Irasas::where('user_id', $naudotojo_id)->with(['tipas', 'kategorija'])->get();
+
+        $pdf = Pdf::loadView('pdf.irasai', compact('irasai'));
+
+        return $pdf->download('irasai.pdf');
+    }
 
     public function store(Request $request)
     {
@@ -128,7 +139,6 @@ class FinansaiController extends Controller
 
         return redirect()->route('dashboard')->with('success', '✅ Įrašas pridėtas sėkmingai!');
     }
-
 
     public function edit($id)
     {

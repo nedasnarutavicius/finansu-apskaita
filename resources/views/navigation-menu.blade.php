@@ -18,7 +18,7 @@
                         </x-nav-link>
 
                         <x-nav-link href="{{ route('statistika') }}" :active="request()->routeIs('statistika')">
-                        📈 Statistika
+                        Statistika
                          </x-nav-link>
                     </div>
                 </div>
@@ -150,7 +150,7 @@
             </x-responsive-nav-link>
 
             <x-responsive-nav-link href="{{ route('statistika') }}" :active="request()->routeIs('statistika')">
-                📈 Statistika
+                Statistika
             </x-responsive-nav-link>
         </div>
 

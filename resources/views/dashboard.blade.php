@@ -71,7 +71,7 @@
             </form>
         </div>
 
-        
+
         <div class="bg-white rounded shadow p-4 overflow-x-auto">
             <h3 class="text-lg font-semibold mb-4">📄 Visi įrašai</h3>
             <table class="min-w-full table-auto w-full text-sm">
@@ -107,6 +107,13 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <div class="mt-6 text-right">
+                <a href="{{ route('eksportuoti.pdf') }}" class="inline-block border border-black text-black font-semibold py-2 px-4 rounded hover:bg-black hover:text-white transition duration-200">
+                ⬇️ Eksportuoti PDF
+                </a>
+            </div>
+
         </div>
     </div>
 </x-app-layout>
